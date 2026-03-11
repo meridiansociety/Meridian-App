@@ -213,6 +213,14 @@
       font-weight:800;
       letter-spacing:.08em;
       box-shadow:0 10px 22px rgba(212,175,55,.18);
+      overflow:hidden;
+    }
+
+    .mark img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
     }
 
     .brand h1{
@@ -280,11 +288,11 @@
     .hero h2{
       margin:0;
       font-weight:700;
-      font-size:clamp(2rem,7vw,2.4rem);
-      line-height:1;
-      letter-spacing:-.03em;
-      max-width:11ch;
+      font-size:clamp(1.8rem,6vw,2.15rem);
+      line-height:1.05;
+      letter-spacing:-.02em;
       color:#fff;
+      white-space:nowrap;
     }
 
     .hero p{
@@ -641,26 +649,32 @@
       letter-spacing:.12em;
       color:var(--gold-soft);
       text-transform:uppercase;
+      word-break:break-word;
     }
 
-    .qr{
-      width:140px;
-      height:140px;
-      padding:8px;
-      margin-top:14px;
+    .ticket-qr-wrap{
+      margin-top:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .ticket-qr{
+      width:220px;
+      max-width:100%;
+      aspect-ratio:1/1;
+      border-radius:18px;
+      overflow:hidden;
       background:#fff;
-      border-radius:16px;
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:3px;
+      padding:12px;
     }
 
-    .qr div{
-      background:#111;
-      opacity:.08;
+    .ticket-qr svg{
+      width:100%;
+      height:100%;
+      display:block;
+      background:#fff;
     }
-
-    .qr .on{opacity:1}
 
     .notice{
       padding:12px 14px;
@@ -860,12 +874,37 @@
       display:none;
     }
 
+    .scanner-wrap{
+      display:grid;
+      gap:12px;
+    }
+
+    .scanner-video{
+      width:100%;
+      border-radius:18px;
+      background:#000;
+      display:block;
+      aspect-ratio:3/4;
+      object-fit:cover;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .scanner-status{
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
+      font-size:.9rem;
+    }
+
     @media (max-width:390px){
       .row-2{grid-template-columns:1fr}
       .panel-top,.ticket-head,.profile-header{flex-direction:column}
       .tag,.status-tag{align-self:flex-start}
       .overview{grid-template-columns:1fr}
       .event-row{grid-template-columns:1fr}
+      .hero h2{white-space:normal}
     }
 
     @media (min-width:560px){
@@ -905,7 +944,7 @@
     <header class="topbar">
       <div class="topbar-row">
         <div class="brand">
-          <div class="mark">M</div>
+          <div class="mark" id="topLeftMark">M</div>
           <div>
             <h1>The Meridian Society</h1>
             <p>Ottawa · Est. 2025</p>
@@ -1150,18 +1189,26 @@
 
           <section class="section">
             <div class="section-head">
-              <h3>Validate Ticket</h3>
-              <span>Check-in</span>
+              <h3>Ticket Validation</h3>
+              <span>Scan or enter code</span>
             </div>
             <div class="panel">
-              <div class="form" style="margin-top:0;">
-                <input class="input" id="ticketInput" placeholder="Enter ticket code (example: MRD-0247-OTTAWA)" />
-                <div class="row-2">
-                  <button class="btn-primary" id="validateTicketBtn">Validate</button>
-                  <button class="btn-secondary" id="scanDemoBtn">Scan Demo</button>
+              <div class="scanner-wrap">
+                <video id="scannerVideo" class="scanner-video hidden" playsinline muted></video>
+                <div id="scannerStatus" class="scanner-status">Scanner inactive.</div>
+                <div class="row-actions">
+                  <button class="btn-primary" id="startScannerBtn">Start Scanner</button>
+                  <button class="btn-secondary" id="stopScannerBtn">Stop Scanner</button>
                 </div>
+                <div class="form" style="margin-top:0;">
+                  <input class="input" id="ticketInput" placeholder="Enter ticket code (example: MRD-0247-OTTAWA)" />
+                  <div class="row-2">
+                    <button class="btn-primary" id="validateTicketBtn">Validate</button>
+                    <button class="btn-secondary" id="scanDemoBtn">Scan Demo</button>
+                  </div>
+                </div>
+                <div id="ticketResult"></div>
               </div>
-              <div id="ticketResult" style="margin-top:12px;"></div>
             </div>
           </section>
 
@@ -1363,12 +1410,15 @@
       ]
     };
 
-    const STORAGE_KEY = "meridian-v7-demo";
-    const SESSION_KEY = "meridian-v7-session";
+    const STORAGE_KEY = "meridian-v71-demo";
+    const SESSION_KEY = "meridian-v71-session";
 
     const state = loadState();
     let deferredPrompt = null;
     let expandedEvents = new Set();
+    let scannerStream = null;
+    let scannerInterval = null;
+    let barcodeDetector = null;
 
     const views = [...document.querySelectorAll(".view")];
     const navButtons = [...document.querySelectorAll(".nav-btn")];
@@ -1443,17 +1493,31 @@
         "Member Access";
     }
 
+    function renderTopLeftMark() {
+      const wrap = document.getElementById("topLeftMark");
+      const user = getUser();
+      if (user && user.profilePhoto) {
+        wrap.innerHTML = `<img src="${user.profilePhoto}" alt="Profile photo" />`;
+      } else if (user) {
+        wrap.textContent = initials(user.name);
+      } else {
+        wrap.textContent = "M";
+      }
+    }
+
     function navigate(view) {
       views.forEach(v => v.classList.add("hidden"));
       const target = document.getElementById(`view-${view}`);
       if (target) target.classList.remove("hidden");
       navButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.view === view));
+      if (view !== "admin") stopScanner();
       if (view === "admin") renderAdmin();
       window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
     }
 
     function renderAll() {
       setStatus();
+      renderTopLeftMark();
       renderHome();
       renderEvents();
       renderTicketsPage();
@@ -1590,7 +1654,7 @@
         : initials(user.name);
 
       const items = [...(user.notifications || [])].slice().reverse();
-      document.getElementById("accessTicket").innerHTML = items.length ? `
+      document.getElementById("memberNotifications").innerHTML = items.length ? `
         <div class="notification-list">
           ${items.map(n => `
             <div class="notification-item">
@@ -1641,6 +1705,7 @@
 
       document.getElementById("adminManageEvents").innerHTML = state.events.map(e => renderAdminEventPanel(e)).join("");
       wireDynamicButtons();
+      updateScannerStatus("Scanner inactive.");
     }
 
     function renderEventPanel(event) {
@@ -1768,19 +1833,54 @@
             </div>
             <span class="tag">${ticket.checkedIn ? "Checked In" : "Registered"}</span>
           </div>
-          <div class="qr">${buildFakeQR(ticket.code)}</div>
+          <div class="ticket-qr-wrap">
+            <div class="ticket-qr">${buildPseudoQrSvg(ticket.code)}</div>
+          </div>
         </article>
       `;
     }
 
-    function buildFakeQR(seed) {
-      let html = "";
-      for (let i = 0; i < 49; i++) {
-        const code = seed.charCodeAt(i % seed.length);
-        const on = ((code + i * 7) % 5) < 2 || [0,1,5,6,7,13,35,41,42,43,47,48].includes(i);
-        html += `<div class="${on ? "on" : ""}"></div>`;
+    function buildPseudoQrSvg(text) {
+      const cells = 21;
+      const cellSize = 10;
+      const size = cells * cellSize;
+      const bits = [];
+      for (let i = 0; i < cells * cells; i++) {
+        const c = text.charCodeAt(i % text.length);
+        const on = ((c * 7 + i * 11) % 9) < 4;
+        bits.push(on);
       }
-      return html;
+
+      function setFinder(x, y) {
+        for (let r = 0; r < 7; r++) {
+          for (let c = 0; c < 7; c++) {
+            const idx = (y + r) * cells + (x + c);
+            const edge = r === 0 || r === 6 || c === 0 || c === 6;
+            const center = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+            bits[idx] = edge || center;
+          }
+        }
+      }
+
+      setFinder(0, 0);
+      setFinder(cells - 7, 0);
+      setFinder(0, cells - 7);
+
+      let rects = "";
+      for (let y = 0; y < cells; y++) {
+        for (let x = 0; x < cells; x++) {
+          if (bits[y * cells + x]) {
+            rects += `<rect x="${x * cellSize}" y="${y * cellSize}" width="${cellSize}" height="${cellSize}" fill="#111111"/>`;
+          }
+        }
+      }
+
+      return `
+        <svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-label="Ticket code graphic">
+          <rect width="${size}" height="${size}" fill="#ffffff"/>
+          ${rects}
+        </svg>
+      `;
     }
 
     function wireDynamicButtons() {
@@ -1810,10 +1910,6 @@
           const input = document.querySelector(`.admin-location-input[data-event-id="${id}"]`);
           updateEventLocation(id, input ? input.value : "");
         });
-      });
-
-      document.querySelectorAll(".open-access-btn").forEach(btn => {
-        btn.addEventListener("click", () => navigate("access"));
       });
     }
 
@@ -2024,6 +2120,7 @@
     }
 
     function logout() {
+      stopScanner();
       state.session.userId = null;
       state.session.roleOverride = null;
       saveState();
@@ -2052,7 +2149,7 @@
 
       if (!ticket) {
         wrap.innerHTML = `<div class="notice warning">Ticket not found. Try MRD-0247-OTTAWA or a registered ticket.</div>`;
-        return;
+        return false;
       }
 
       const member = state.members.find(m => m.id === ticket.memberId);
@@ -2060,7 +2157,7 @@
 
       if (ticket.checkedIn) {
         wrap.innerHTML = `<div class="notice warning">Already checked in: ${escapeHtml(member?.name || "Unknown")} for ${escapeHtml(event?.title || "Unknown event")}.</div>`;
-        return;
+        return false;
       }
 
       ticket.checkedIn = true;
@@ -2068,6 +2165,7 @@
       saveState();
       renderAll();
       wrap.innerHTML = `<div class="notice">Validated: ${escapeHtml(member?.name || "Unknown")} is now checked in for ${escapeHtml(event?.title || "Unknown event")}.</div>`;
+      return true;
     }
 
     function publishAnnouncement() {
@@ -2120,6 +2218,88 @@
         navigate("access");
       }
       toast("Demo notification triggered.");
+    }
+
+    function updateScannerStatus(text) {
+      const el = document.getElementById("scannerStatus");
+      if (el) el.textContent = text;
+    }
+
+    async function startScanner() {
+      const video = document.getElementById("scannerVideo");
+      if (!video) return;
+
+      if (!("mediaDevices" in navigator) || !navigator.mediaDevices.getUserMedia) {
+        updateScannerStatus("Camera scanning is not supported on this browser.");
+        return;
+      }
+
+      if (!("BarcodeDetector" in window)) {
+        updateScannerStatus("In-app QR scanning is not supported on this browser. Use manual code entry.");
+        return;
+      }
+
+      try {
+        barcodeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+      } catch (e) {
+        updateScannerStatus("QR scanner could not be initialized. Use manual code entry.");
+        return;
+      }
+
+      try {
+        scannerStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+
+        video.srcObject = scannerStream;
+        video.classList.remove("hidden");
+        await video.play();
+        updateScannerStatus("Scanner active. Point the camera at a member ticket.");
+
+        if (scannerInterval) clearInterval(scannerInterval);
+        scannerInterval = setInterval(async () => {
+          if (!barcodeDetector || !video || video.readyState < 2) return;
+          try {
+            const barcodes = await barcodeDetector.detect(video);
+            if (barcodes && barcodes.length) {
+              const raw = String(barcodes[0].rawValue || "").trim();
+              if (raw) {
+                document.getElementById("ticketInput").value = raw;
+                const ok = validateTicket(raw);
+                if (ok) {
+                  updateScannerStatus(`Scanned and validated: ${raw}`);
+                  stopScanner();
+                } else {
+                  updateScannerStatus(`Scanned code: ${raw}`);
+                }
+              }
+            }
+          } catch (err) {}
+        }, 800);
+      } catch (err) {
+        updateScannerStatus("Camera access was denied or unavailable.");
+      }
+    }
+
+    function stopScanner() {
+      const video = document.getElementById("scannerVideo");
+      if (scannerInterval) {
+        clearInterval(scannerInterval);
+        scannerInterval = null;
+      }
+      if (scannerStream) {
+        scannerStream.getTracks().forEach(track => track.stop());
+        scannerStream = null;
+      }
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+        video.classList.add("hidden");
+      }
+      if (document.getElementById("scannerStatus")) {
+        updateScannerStatus("Scanner inactive.");
+      }
     }
 
     function setupInstallPrompt() {
@@ -2187,6 +2367,9 @@
         const file = e.target.files && e.target.files[0];
         if (file) updateProfilePhoto(file);
       });
+
+      document.getElementById("startScannerBtn").addEventListener("click", startScanner);
+      document.getElementById("stopScannerBtn").addEventListener("click", stopScanner);
     }
 
     bindStaticEvents();
