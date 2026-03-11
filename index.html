@@ -6,7 +6,7 @@
   <title>The Meridian Society</title>
   <meta
     name="description"
-    content="The Meridian Society mobile member app demo — schedules, speaker announcements, RSVP, member registry, and admin tools."
+    content="The Meridian Society mobile member app demo — schedules, tickets, registry, speaker announcements, and admin tools."
   />
   <meta name="theme-color" content="#090b0f" />
   <link rel="manifest" href="./manifest.json" />
@@ -18,21 +18,16 @@
       --bg-2:#0d1117;
       --bg-3:#11161d;
       --panel:#10151b;
-      --panel-soft:rgba(255,255,255,.02);
       --line:rgba(255,255,255,.08);
       --line-soft:rgba(255,255,255,.05);
       --text:#f3f1eb;
-      --muted:#9ba1aa;
-      --muted-2:#7f858d;
+      --muted:#9ca2aa;
+      --muted-2:#7d838b;
       --gold:#d0b07a;
       --gold-soft:#ecdfc2;
-      --gold-deep:#b58d53;
       --success:#a7c3a5;
       --danger:#d99a9a;
       --shadow:0 18px 50px rgba(0,0,0,.28);
-      --radius-lg:18px;
-      --radius-md:12px;
-      --radius-sm:8px;
       --phone:460px;
       --safe-top:env(safe-area-inset-top,0px);
       --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -48,7 +43,7 @@
       min-height:100%;
       background:
         radial-gradient(circle at top, rgba(208,176,122,.09), transparent 28%),
-        linear-gradient(180deg, #08090c 0%, #0a0d11 45%, #090b0f 100%);
+        linear-gradient(180deg,#08090c 0%,#0a0d11 45%,#090b0f 100%);
       color:var(--text);
       font-family:var(--font);
       -webkit-text-size-adjust:100%;
@@ -60,9 +55,7 @@
       justify-content:center;
     }
 
-    button,input,select,textarea{
-      font:inherit;
-    }
+    button,input,select,textarea{font:inherit}
 
     button:focus-visible,
     input:focus-visible,
@@ -89,7 +82,7 @@
       position:absolute;
       inset:0;
       pointer-events:none;
-      opacity:.15;
+      opacity:.13;
       background-image:
         linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
@@ -105,7 +98,7 @@
       place-items:center;
       background:
         radial-gradient(circle at top, rgba(208,176,122,.12), transparent 30%),
-        linear-gradient(180deg, #090b0f 0%, #0a0d11 100%);
+        linear-gradient(180deg,#090b0f 0%,#0a0d11 100%);
       transition:opacity .4s ease, visibility .4s ease;
     }
 
@@ -243,7 +236,7 @@
     .view.hidden{display:none !important}
 
     .hero{
-      padding:20px 0 16px;
+      padding:18px 0 14px;
       border-bottom:1px solid var(--line-soft);
       margin-bottom:16px;
     }
@@ -272,10 +265,10 @@
       color:var(--muted);
       font-size:.94rem;
       line-height:1.52;
-      max-width:32ch;
+      max-width:31ch;
     }
 
-    .actions,.inline-actions{
+    .actions,.inline-actions,.row-actions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
@@ -311,6 +304,24 @@
       border:1px solid var(--line);
     }
 
+    .btn-inline{
+      min-height:40px;
+      padding:0 12px;
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      font-size:.84rem;
+    }
+
+    .btn-rsvp{
+      min-height:40px;
+      padding:0 12px;
+      background:linear-gradient(180deg,#e0c899,#c8a468);
+      color:#14110b;
+      font-weight:700;
+      font-size:.84rem;
+    }
+
     .install-banner{
       margin-top:14px;
       padding:12px 0 0;
@@ -321,27 +332,32 @@
       gap:12px;
     }
 
-    .hero-meta{
+    .hero-status{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
+      grid-template-columns:1.2fr 1fr 1fr;
+      gap:0;
       margin-top:18px;
-      padding-top:14px;
       border-top:1px solid var(--line-soft);
+      border-bottom:1px solid var(--line-soft);
     }
 
-    .meta-col{
-      min-width:0;
+    .hero-status-item{
+      padding:12px 10px 12px 0;
     }
 
-    .meta-col strong{
+    .hero-status-item + .hero-status-item{
+      border-left:1px solid var(--line-soft);
+      padding-left:12px;
+    }
+
+    .hero-status-item strong{
       display:block;
       font-family:var(--serif);
-      font-size:1.28rem;
+      font-size:1.18rem;
       margin-bottom:2px;
     }
 
-    .meta-col span{
+    .hero-status-item span{
       color:var(--muted);
       font-size:.74rem;
       line-height:1.3;
@@ -396,9 +412,6 @@
       text-align:right;
     }
 
-    .grid{display:grid; gap:14px}
-    .list{display:grid; gap:0}
-
     .overview{
       display:grid;
       grid-template-columns:repeat(3,1fr);
@@ -429,6 +442,7 @@
       line-height:1.28;
     }
 
+    .list{display:grid;gap:0}
     .panel{
       padding:14px 0;
       border-bottom:1px solid var(--line-soft);
@@ -488,6 +502,19 @@
       flex:0 0 auto;
     }
 
+    .status-tag{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:28px;
+      padding:0 10px;
+      border:1px solid var(--line);
+      color:var(--text);
+      background:rgba(255,255,255,.02);
+      font-size:.72rem;
+      white-space:nowrap;
+    }
+
     .meta-row{
       display:flex;
       flex-wrap:wrap;
@@ -510,31 +537,6 @@
       height:2px;
       background:rgba(255,255,255,.28);
       transform:translateY(-50%);
-    }
-
-    .row-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .btn-inline{
-      min-height:40px;
-      padding:0 12px;
-      border:1px solid var(--line);
-      background:transparent;
-      color:var(--text);
-      font-size:.84rem;
-    }
-
-    .btn-rsvp{
-      min-height:40px;
-      padding:0 12px;
-      background:linear-gradient(180deg,#e0c899,#c8a468);
-      color:#14110b;
-      font-weight:700;
-      font-size:.84rem;
     }
 
     .attendees{
@@ -592,9 +594,39 @@
       background:rgba(208,176,122,.07);
     }
 
-    .profile-grid{
+    .dashboard{
       display:grid;
       gap:18px;
+    }
+
+    .dashboard-grid{
+      display:grid;
+      gap:0;
+      border-top:1px solid var(--line-soft);
+      border-bottom:1px solid var(--line-soft);
+    }
+
+    .dashboard-item{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid var(--line-soft);
+    }
+
+    .dashboard-item:last-child{
+      border-bottom:0;
+    }
+
+    .dashboard-item strong{
+      font-size:.9rem;
+      font-weight:700;
+    }
+
+    .dashboard-item span{
+      color:var(--muted);
+      font-size:.76rem;
     }
 
     .registry{
@@ -788,7 +820,7 @@
 
     .nav-inner{
       display:grid;
-      grid-template-columns:repeat(5,1fr);
+      grid-template-columns:repeat(6,1fr);
       gap:2px;
       padding:6px;
       background:rgba(11,15,20,.96);
@@ -805,7 +837,7 @@
       display:grid;
       place-items:center;
       gap:4px;
-      font-size:.67rem;
+      font-size:.66rem;
     }
 
     .nav-btn.active{
@@ -838,13 +870,12 @@
 
     .hidden{display:none !important}
 
-    @media (max-width:370px){
-      .topbar-row{align-items:flex-start}
-      .status{font-size:.68rem}
+    @media (max-width:390px){
+      .nav-inner{grid-template-columns:repeat(3,1fr)}
       .row-2{grid-template-columns:1fr}
       .panel-top,.registry-head,.ticket-head{flex-direction:column}
-      .hero-meta,.overview,.registry-stats{grid-template-columns:1fr 1fr 1fr}
-      .tag{align-self:flex-start}
+      .tag,.status-tag{align-self:flex-start}
+      .hero-status,.overview,.registry-stats{grid-template-columns:1fr 1fr 1fr}
     }
 
     @media (min-width:560px){
@@ -913,18 +944,18 @@
             <button class="btn-primary" id="installBtn">Install</button>
           </div>
 
-          <div class="hero-meta">
-            <div class="meta-col">
-              <strong id="heroEventCount">0</strong>
-              <span>Upcoming gatherings</span>
+          <div class="hero-status">
+            <div class="hero-status-item">
+              <strong id="heroNextEventLabel">Next Event</strong>
+              <span id="heroNextEventDate">April 4 · 7:00 PM</span>
             </div>
-            <div class="meta-col">
-              <strong id="heroSpeakerCount">0</strong>
-              <span>Featured speakers</span>
+            <div class="hero-status-item">
+              <strong id="heroTicketState">No Ticket</strong>
+              <span>Your current access</span>
             </div>
-            <div class="meta-col">
-              <strong id="heroMemberCount">0</strong>
-              <span>Active members</span>
+            <div class="hero-status-item">
+              <strong id="heroVenueState">Venue Pending</strong>
+              <span>Releases before doors</span>
             </div>
           </div>
 
@@ -938,22 +969,11 @@
 
         <section class="section">
           <div class="section-head">
-            <h3>Society Overview</h3>
-            <span>At a glance</span>
+            <h3>Member Dashboard</h3>
+            <span>Priority view</span>
           </div>
-          <div class="overview">
-            <div class="overview-item">
-              <strong id="statEvents">0</strong>
-              <span>Upcoming gatherings</span>
-            </div>
-            <div class="overview-item">
-              <strong id="statSpeakers">0</strong>
-              <span>Featured speakers</span>
-            </div>
-            <div class="overview-item">
-              <strong id="statMembers">0</strong>
-              <span>Active members</span>
-            </div>
+          <div class="dashboard">
+            <div class="dashboard-grid" id="memberDashboard"></div>
           </div>
         </section>
 
@@ -983,20 +1003,28 @@
         <div class="list" id="eventsList"></div>
       </section>
 
-      <section id="view-speakers" class="view hidden">
+      <section id="view-tickets" class="view hidden">
         <div class="section-head">
-          <h3>Speakers</h3>
-          <span>Current archive</span>
+          <h3>Tickets</h3>
+          <span>Access state</span>
         </div>
-        <div class="list" id="speakersList"></div>
+        <div id="ticketsPageContent"></div>
       </section>
 
-      <section id="view-announcements" class="view hidden">
+      <section id="view-registry" class="view hidden">
         <div class="section-head">
-          <h3>Announcements</h3>
-          <span>Public and member notices</span>
+          <h3>Active Member Registry</h3>
+          <span>Members</span>
         </div>
-        <div class="list" id="announcementsList"></div>
+        <div class="list" id="registryList"></div>
+      </section>
+
+      <section id="view-legacy" class="view hidden">
+        <div class="section-head">
+          <h3>Legacy</h3>
+          <span>Archive</span>
+        </div>
+        <div class="list" id="legacyList"></div>
       </section>
 
       <section id="view-profile" class="view hidden">
@@ -1009,7 +1037,7 @@
             <div class="panel">
               <div class="kicker">Membership</div>
               <h4 class="title">Sign in</h4>
-              <p class="subtitle">RSVP, ticket access, attendee lists, and member notices.</p>
+              <p class="subtitle">RSVP, ticket access, registry, and member notices.</p>
 
               <div class="form">
                 <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
@@ -1027,76 +1055,66 @@
         </div>
 
         <div id="profileMember" class="hidden">
-          <div class="profile-grid">
-            <section class="registry">
-              <div class="registry-head">
-                <div class="registry-id">
-                  <div class="registry-badge" id="profileInitials">MS</div>
-                  <div>
-                    <div class="kicker">Active Member Registry</div>
-                    <h3 id="profileName" class="title" style="font-size:1.1rem;">Member Name</h3>
-                    <p id="profileMeta" class="subtitle">University · Interests</p>
-                  </div>
-                </div>
-                <span class="tag" id="profileTier">Member</span>
-              </div>
-
-              <div class="registry-stats">
-                <div class="registry-stat">
-                  <strong id="profilePoints">0</strong>
-                  <span>Meridian points</span>
-                </div>
-                <div class="registry-stat">
-                  <strong id="profileStreak">0</strong>
-                  <span>Attendance streak</span>
-                </div>
-                <div class="registry-stat">
-                  <strong id="profileRSVPs">0</strong>
-                  <span>Events joined</span>
+          <section class="registry">
+            <div class="registry-head">
+              <div class="registry-id">
+                <div class="registry-badge" id="profileInitials">MS</div>
+                <div>
+                  <div class="kicker">Active Member Registry</div>
+                  <h3 id="profileName" class="title" style="font-size:1.1rem;">Member Name</h3>
+                  <p id="profileMeta" class="subtitle">University · Interests</p>
                 </div>
               </div>
+              <span class="tag" id="profileTier">Member</span>
+            </div>
 
-              <div class="progress">
-                <div class="progress-top">
-                  <span class="tiny">Progress to Curated Circle</span>
-                  <span class="tiny" id="profileProgressText">0 / 1000</span>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill" id="profileProgressFill"></div>
-                </div>
+            <div class="registry-stats">
+              <div class="registry-stat">
+                <strong id="profileAttendance">0</strong>
+                <span>Attendance count</span>
               </div>
-
-              <div class="meta-row" style="margin-top:12px;">
-                <span id="memberInterests">Fields</span>
-                <span id="profileRoleTag">Member Session</span>
+              <div class="registry-stat">
+                <strong id="profileInvites">0</strong>
+                <span>Confirmed access</span>
               </div>
-
-              <p class="body" id="memberBio" style="margin-top:10px;"></p>
-
-              <div class="row-actions">
-                <button class="btn-inline" id="notifyBtn">Demo Notification</button>
-                <button class="btn-inline" id="switchToMemberBtn">Member View</button>
-                <button class="btn-inline" id="switchToAdminBtn">Admin View</button>
-                <button class="btn-rsvp" id="logoutBtn">Sign Out</button>
+              <div class="registry-stat">
+                <strong id="profileStanding">Active</strong>
+                <span>Registry standing</span>
               </div>
-            </section>
+            </div>
 
-            <section class="section">
-              <div class="section-head">
-                <h3>Your Tickets</h3>
-                <span>Entry access</span>
+            <div class="progress">
+              <div class="progress-top">
+                <span class="tiny">Curated Circle progress</span>
+                <span class="tiny" id="profileProgressText">0 / 1000</span>
               </div>
-              <div id="ticketsList"></div>
-            </section>
+              <div class="progress-track">
+                <div class="progress-fill" id="profileProgressFill"></div>
+              </div>
+            </div>
 
-            <section class="section">
-              <div class="section-head">
-                <h3>Member Registry</h3>
-                <span>Who you gather with</span>
-              </div>
-              <div class="list" id="memberDirectory"></div>
-            </section>
-          </div>
+            <div class="meta-row" style="margin-top:12px;">
+              <span id="memberInterests">Fields</span>
+              <span id="profileRoleTag">Member Session</span>
+            </div>
+
+            <p class="body" id="memberBio" style="margin-top:10px;"></p>
+
+            <div class="row-actions">
+              <button class="btn-inline" id="notifyBtn">Demo Notification</button>
+              <button class="btn-inline" id="switchToMemberBtn">Member View</button>
+              <button class="btn-inline" id="switchToAdminBtn">Admin View</button>
+              <button class="btn-rsvp" id="logoutBtn">Sign Out</button>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <h3>Current Ticket</h3>
+              <span>Live access</span>
+            </div>
+            <div id="ticketsList"></div>
+          </section>
         </div>
       </section>
 
@@ -1200,25 +1218,32 @@
           </svg>
           <span>Events</span>
         </button>
-        <button class="nav-btn" data-view="speakers" aria-label="Speakers">
+        <button class="nav-btn" data-view="tickets" aria-label="Tickets">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M15 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
-            <path d="M4 20a8 8 0 0 1 16 0"></path>
+            <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-4z"></path>
+            <path d="M12 6v12"></path>
           </svg>
-          <span>Speakers</span>
+          <span>Tickets</span>
         </button>
-        <button class="nav-btn" data-view="announcements" aria-label="Updates">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M4 17l16-6-16-6v5l10 1-10 1z"></path>
-          </svg>
-          <span>Updates</span>
-        </button>
-        <button class="nav-btn" data-view="profile" aria-label="Profile">
+        <button class="nav-btn" data-view="registry" aria-label="Registry">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 21a8 8 0 0 0-16 0"></path>
             <circle cx="12" cy="8" r="4"></circle>
           </svg>
-          <span>Profile</span>
+          <span>Registry</span>
+        </button>
+        <button class="nav-btn" data-view="legacy" aria-label="Legacy">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 3v18"></path>
+            <path d="M5 8c1.5-1 3.1-1.5 5-1.5S13.5 7 15 8c1.5-1 3.1-1.5 5-1.5V19c-1.9 0-3.5.5-5 1.5-1.5-1-3.1-1.5-5-1.5S6.5 20 5 21.5V8z"></path>
+          </svg>
+          <span>Legacy</span>
+        </button>
+        <button class="nav-btn" data-view="profile" aria-label="Profile">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 17l16-6-16-6v5l10 1-10 1z"></path>
+          </svg>
+          <span>Access</span>
         </button>
       </div>
     </nav>
@@ -1238,7 +1263,8 @@
           capacity: 60,
           speakerIds: ["spk-001", "spk-002"],
           attendees: ["m-001", "m-002", "m-003", "m-004"],
-          featured: true
+          featured: true,
+          status: "venue_pending"
         },
         {
           id: "evt-002",
@@ -1251,7 +1277,8 @@
           capacity: 40,
           speakerIds: ["spk-003"],
           attendees: ["m-002", "m-004"],
-          featured: false
+          featured: false,
+          status: "scheduled"
         },
         {
           id: "evt-003",
@@ -1264,7 +1291,8 @@
           capacity: 45,
           speakerIds: ["spk-002"],
           attendees: ["m-001", "m-003"],
-          featured: false
+          featured: false,
+          status: "scheduled"
         },
         {
           id: "evt-004",
@@ -1277,7 +1305,8 @@
           capacity: 55,
           speakerIds: ["spk-001"],
           attendees: ["m-002"],
-          featured: false
+          featured: false,
+          status: "scheduled"
         },
         {
           id: "evt-005",
@@ -1290,7 +1319,31 @@
           capacity: 70,
           speakerIds: ["spk-001", "spk-002", "spk-003"],
           attendees: ["m-004"],
-          featured: false
+          featured: false,
+          status: "scheduled"
+        }
+      ],
+      archive: [
+        {
+          id: "arc-001",
+          title: "Orientation, Access, and Better Questions",
+          date: "February 2026",
+          format: "Open Conversation",
+          note: "Early Meridian discussion on exposure, orientation, and the value of serious rooms."
+        },
+        {
+          id: "arc-002",
+          title: "Law, Media, and Institutional Voice",
+          date: "January 2026",
+          format: "Panel Discussions",
+          note: "Student and speaker panel on public credibility and influence."
+        },
+        {
+          id: "arc-003",
+          title: "Founding Gathering",
+          date: "December 2025",
+          format: "Informal Gathering",
+          note: "Initial members’ evening marking the Society’s first closed-room event."
         }
       ],
       speakers: [
@@ -1351,8 +1404,7 @@
           points: 420,
           streak: 3,
           tier: "Founding Member",
-          role: "member",
-          notifications: true
+          role: "member"
         },
         {
           id: "m-002",
@@ -1365,8 +1417,7 @@
           points: 610,
           streak: 4,
           tier: "Curated Circle",
-          role: "member",
-          notifications: true
+          role: "member"
         },
         {
           id: "m-003",
@@ -1379,8 +1430,7 @@
           points: 350,
           streak: 2,
           tier: "Member",
-          role: "member",
-          notifications: false
+          role: "member"
         },
         {
           id: "m-004",
@@ -1393,8 +1443,7 @@
           points: 730,
           streak: 5,
           tier: "Curated Circle",
-          role: "member",
-          notifications: true
+          role: "member"
         },
         {
           id: "admin-001",
@@ -1407,8 +1456,7 @@
           points: 999,
           streak: 9,
           tier: "Executive",
-          role: "admin",
-          notifications: true
+          role: "admin"
         }
       ],
       tickets: [
@@ -1416,13 +1464,14 @@
           code: "MRD-0247-OTTAWA",
           eventId: "evt-001",
           memberId: "m-001",
-          checkedIn: false
+          checkedIn: false,
+          venueReleased: false
         }
       ]
     };
 
-    const STORAGE_KEY = "meridian-v4-demo";
-    const SESSION_KEY = "meridian-v4-session";
+    const STORAGE_KEY = "meridian-v5-demo";
+    const SESSION_KEY = "meridian-v5-session";
 
     const state = loadState();
     let deferredPrompt = null;
@@ -1442,6 +1491,7 @@
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         events: state.events,
+        archive: state.archive,
         speakers: state.speakers,
         announcements: state.announcements,
         members: state.members,
@@ -1483,6 +1533,28 @@
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     }
 
+    function getTicketForUser(user) {
+      if (!user) return null;
+      return state.tickets.find(t => t.memberId === user.id) || null;
+    }
+
+    function getEventById(id) {
+      return state.events.find(e => e.id === id) || null;
+    }
+
+    function ticketState(ticket) {
+      if (!ticket) return "No Ticket";
+      if (ticket.checkedIn) return "Checked In";
+      if (ticket.venueReleased) return "Venue Released";
+      return "RSVP Confirmed";
+    }
+
+    function venueState(ticket) {
+      if (!ticket) return "Venue Pending";
+      if (ticket.venueReleased) return "Venue Released";
+      return "Venue Pending";
+    }
+
     function setStatus() {
       const pill = document.getElementById("statusPill");
       const role = getRole();
@@ -1505,20 +1577,54 @@
       setStatus();
       renderHome();
       renderEvents();
-      renderSpeakers();
-      renderAnnouncements();
+      renderTicketsPage();
+      renderRegistry();
+      renderLegacy();
       renderProfile();
       renderAdmin();
     }
 
     function renderHome() {
-      const memberCount = state.members.filter(m => m.role !== "admin").length;
-      document.getElementById("statEvents").textContent = state.events.length;
-      document.getElementById("statSpeakers").textContent = state.speakers.length;
-      document.getElementById("statMembers").textContent = memberCount;
-      document.getElementById("heroEventCount").textContent = state.events.length;
-      document.getElementById("heroSpeakerCount").textContent = state.speakers.length;
-      document.getElementById("heroMemberCount").textContent = memberCount;
+      const user = getUser();
+      const ticket = getTicketForUser(user);
+      const nextEvent = state.events[0];
+
+      document.getElementById("heroNextEventLabel").textContent = nextEvent ? "Next Event" : "No Event";
+      document.getElementById("heroNextEventDate").textContent = nextEvent ? `${nextEvent.date} · ${nextEvent.time}` : "Awaiting schedule";
+      document.getElementById("heroTicketState").textContent = ticketState(ticket);
+      document.getElementById("heroVenueState").textContent = venueState(ticket);
+
+      const dashboard = document.getElementById("memberDashboard");
+      dashboard.innerHTML = `
+        <div class="dashboard-item">
+          <div>
+            <strong>${ticket ? "Current ticket" : "Ticket status"}</strong>
+            <span>${ticket ? escapeHtml(ticket.code) : "No ticket issued"}</span>
+          </div>
+          <span class="status-tag">${ticketState(ticket)}</span>
+        </div>
+        <div class="dashboard-item">
+          <div>
+            <strong>Venue release</strong>
+            <span>${ticket && ticket.venueReleased ? "Location released in app" : "72 hours before doors"}</span>
+          </div>
+          <span class="status-tag">${venueState(ticket)}</span>
+        </div>
+        <div class="dashboard-item">
+          <div>
+            <strong>Latest notice</strong>
+            <span>${escapeHtml(state.announcements[0].title)}</span>
+          </div>
+          <span class="status-tag">${escapeHtml(state.announcements[0].audience)}</span>
+        </div>
+        <div class="dashboard-item">
+          <div>
+            <strong>Registry access</strong>
+            <span>${user ? escapeHtml(user.name) : "Sign in for member access"}</span>
+          </div>
+          <span class="status-tag">${user ? "Active" : "Guest"}</span>
+        </div>
+      `;
 
       const featured = state.events.find(e => e.featured) || state.events[0];
       document.getElementById("featuredEvent").innerHTML = renderEventPanel(featured, true);
@@ -1560,74 +1666,35 @@
       });
     }
 
-    function renderSpeakers() {
-      const wrap = document.getElementById("speakersList");
-      wrap.innerHTML = state.speakers.map(sp => {
-        const related = state.events.filter(e => e.speakerIds.includes(sp.id)).map(e => e.title);
-        return `
-          <article class="panel">
-            <div class="panel-top">
-              <div>
-                <div class="kicker">Speaker</div>
-                <h4 class="title">${escapeHtml(sp.name)}</h4>
-                <p class="subtitle">${escapeHtml(sp.title)}</p>
-              </div>
-              <span class="tag">${escapeHtml(sp.focus)}</span>
-            </div>
-            <p class="body">${escapeHtml(sp.bio)}</p>
-            <div class="meta-row">
-              ${related.map(r => `<span>${escapeHtml(r)}</span>`).join("")}
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    function renderAnnouncements() {
-      const role = getRole();
-      const items = [...state.announcements]
-        .sort(sortByDateDesc)
-        .filter(a => a.audience === "Public" || role !== "public");
-
-      document.getElementById("announcementsList").innerHTML = items.map(renderAnnouncementPanel).join("");
-    }
-
-    function renderProfile() {
+    function renderTicketsPage() {
       const user = getUser();
-      const role = getRole();
-
-      const guest = document.getElementById("profileGuest");
-      const member = document.getElementById("profileMember");
+      const wrap = document.getElementById("ticketsPageContent");
 
       if (!user) {
-        guest.classList.remove("hidden");
-        member.classList.add("hidden");
+        wrap.innerHTML = `
+          <div class="panel">
+            <div class="kicker">Access</div>
+            <h4 class="title">Sign in required</h4>
+            <p class="subtitle">Member tickets and venue release states appear here.</p>
+            <div class="row-actions" style="margin-top:12px;">
+              <button class="btn-rsvp open-profile-btn">Open Member Access</button>
+            </div>
+          </div>
+        `;
+        document.querySelectorAll(".open-profile-btn").forEach(btn => btn.addEventListener("click", () => navigate("profile")));
         return;
       }
 
-      guest.classList.add("hidden");
-      member.classList.remove("hidden");
-
-      document.getElementById("profileInitials").textContent = initials(user.name);
-      document.getElementById("profileName").textContent = user.name;
-      document.getElementById("profileMeta").textContent = `${user.university} · ${user.interests.join(", ")}`;
-      document.getElementById("profileTier").textContent = user.tier;
-      document.getElementById("profilePoints").textContent = user.points;
-      document.getElementById("profileStreak").textContent = `${user.streak}x`;
-      document.getElementById("profileRSVPs").textContent = state.tickets.filter(t => t.memberId === user.id).length;
-      document.getElementById("profileProgressText").textContent = `${user.points} / 1000`;
-      document.getElementById("profileProgressFill").style.width = `${Math.min(100, (user.points / 1000) * 100)}%`;
-      document.getElementById("memberInterests").textContent = `Fields: ${user.interests.join(" · ")}`;
-      document.getElementById("profileRoleTag").textContent = role === "admin" ? "Admin Session" : "Member Session";
-      document.getElementById("memberBio").textContent = user.bio;
-
       const tickets = state.tickets.filter(t => t.memberId === user.id);
-      document.getElementById("ticketsList").innerHTML = tickets.length
+      wrap.innerHTML = tickets.length
         ? tickets.map(renderTicketPanel).join("")
         : `<div class="empty">No tickets yet. RSVP to a gathering to generate one.</div>`;
+    }
 
-      document.getElementById("memberDirectory").innerHTML = state.members
-        .filter(m => m.role !== "admin" && m.id !== user.id)
+    function renderRegistry() {
+      const wrap = document.getElementById("registryList");
+      wrap.innerHTML = state.members
+        .filter(m => m.role !== "admin")
         .map(m => `
           <article class="panel">
             <div class="panel-top">
@@ -1640,9 +1707,60 @@
               </div>
               <span class="tag">${escapeHtml(m.tier)}</span>
             </div>
-            <p class="body">${escapeHtml(m.bio)}</p>
           </article>
         `).join("");
+    }
+
+    function renderLegacy() {
+      const wrap = document.getElementById("legacyList");
+      wrap.innerHTML = state.archive.map(item => `
+        <article class="panel">
+          <div class="panel-top">
+            <div>
+              <div class="kicker">${escapeHtml(item.format)}</div>
+              <h4 class="title">${escapeHtml(item.title)}</h4>
+              <p class="subtitle">${escapeHtml(item.date)}</p>
+            </div>
+            <span class="status-tag">Archived</span>
+          </div>
+          <p class="body">${escapeHtml(item.note)}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderProfile() {
+      const user = getUser();
+      const role = getRole();
+      const guest = document.getElementById("profileGuest");
+      const member = document.getElementById("profileMember");
+
+      if (!user) {
+        guest.classList.remove("hidden");
+        member.classList.add("hidden");
+        return;
+      }
+
+      guest.classList.add("hidden");
+      member.classList.remove("hidden");
+
+      const tickets = state.tickets.filter(t => t.memberId === user.id);
+
+      document.getElementById("profileInitials").textContent = initials(user.name);
+      document.getElementById("profileName").textContent = user.name;
+      document.getElementById("profileMeta").textContent = `${user.university} · ${user.interests.join(", ")}`;
+      document.getElementById("profileTier").textContent = user.tier;
+      document.getElementById("profileAttendance").textContent = user.streak;
+      document.getElementById("profileInvites").textContent = tickets.length;
+      document.getElementById("profileStanding").textContent = "Active";
+      document.getElementById("profileProgressText").textContent = `${user.points} / 1000`;
+      document.getElementById("profileProgressFill").style.width = `${Math.min(100, (user.points / 1000) * 100)}%`;
+      document.getElementById("memberInterests").textContent = `Fields: ${user.interests.join(" · ")}`;
+      document.getElementById("profileRoleTag").textContent = role === "admin" ? "Admin Session" : "Member Session";
+      document.getElementById("memberBio").textContent = user.bio;
+
+      document.getElementById("ticketsList").innerHTML = tickets.length
+        ? tickets.map(renderTicketPanel).join("")
+        : `<div class="empty">No tickets yet. RSVP to a gathering to generate one.</div>`;
     }
 
     function renderAdmin() {
@@ -1728,15 +1846,15 @@
             ${attendeeMembers.length > 5 ? `<span class="tiny">+${attendeeMembers.length - 5} more</span>` : ""}
           </div>
 
-          <div class="row-actions">
+          <div class="row-actions" style="margin-top:12px;">
             ${
               isMember
                 ? already
                   ? `<button class="btn-inline" disabled aria-disabled="true">Ticket Issued</button>`
                   : `<button class="btn-rsvp rsvp-btn" data-event-id="${escapeHtml(event.id)}">RSVP</button>`
-                : `<button class="btn-inline login-btn">Login to RSVP</button>`
+                : `<button class="btn-inline open-profile-btn">Login to RSVP</button>`
             }
-            <button class="btn-inline open-speakers-btn">View Speakers</button>
+            <button class="btn-inline open-legacy-btn">Legacy</button>
           </div>
         </article>
       `;
@@ -1759,7 +1877,7 @@
     }
 
     function renderTicketPanel(ticket) {
-      const event = state.events.find(e => e.id === ticket.eventId);
+      const event = getEventById(ticket.eventId);
       if (!event) return "";
 
       return `
@@ -1768,10 +1886,21 @@
             <div>
               <div class="kicker">Member Ticket</div>
               <h4 class="title">${escapeHtml(event.title)}</h4>
-              <p class="subtitle">${escapeHtml(event.date)} · ${escapeHtml(event.time)} · ${escapeHtml(event.location)}</p>
+              <p class="subtitle">${escapeHtml(event.date)} · ${escapeHtml(event.time)}</p>
+              <div class="meta-row">
+                <span>${ticketState(ticket)}</span>
+                <span>${venueState(ticket)}</span>
+              </div>
               <div class="ticket-code">${escapeHtml(ticket.code)}</div>
             </div>
-            <span class="tag">${ticket.checkedIn ? "Checked In" : "Valid"}</span>
+            <div style="display:grid; gap:8px;">
+              <span class="tag">${ticket.checkedIn ? "Checked In" : "Valid"}</span>
+              ${
+                !ticket.venueReleased && !ticket.checkedIn
+                  ? `<button class="btn-inline release-venue-btn" data-ticket-code="${escapeHtml(ticket.code)}">Release Venue</button>`
+                  : ``
+              }
+            </div>
           </div>
           <div class="qr">${buildFakeQR(ticket.code)}</div>
         </article>
@@ -1793,12 +1922,16 @@
         btn.addEventListener("click", () => rsvpToEvent(btn.dataset.eventId));
       });
 
-      document.querySelectorAll(".login-btn").forEach(btn => {
+      document.querySelectorAll(".open-profile-btn").forEach(btn => {
         btn.addEventListener("click", () => navigate("profile"));
       });
 
-      document.querySelectorAll(".open-speakers-btn").forEach(btn => {
-        btn.addEventListener("click", () => navigate("speakers"));
+      document.querySelectorAll(".open-legacy-btn").forEach(btn => {
+        btn.addEventListener("click", () => navigate("legacy"));
+      });
+
+      document.querySelectorAll(".release-venue-btn").forEach(btn => {
+        btn.addEventListener("click", () => releaseVenue(btn.dataset.ticketCode));
       });
     }
 
@@ -1826,7 +1959,7 @@
         return;
       }
 
-      const event = state.events.find(e => e.id === eventId);
+      const event = getEventById(eventId);
       if (!event) return;
 
       if (state.tickets.some(t => t.eventId === eventId && t.memberId === user.id)) {
@@ -1840,11 +1973,14 @@
       }
 
       event.attendees.push(user.id);
+      event.status = "venue_pending";
+
       state.tickets.push({
         code: generateTicketCode(),
         eventId,
         memberId: user.id,
-        checkedIn: false
+        checkedIn: false,
+        venueReleased: false
       });
 
       user.points += 90;
@@ -1852,8 +1988,22 @@
 
       saveState();
       renderAll();
-      navigate("profile");
-      toast("RSVP confirmed. Your ticket is now live.");
+      navigate("tickets");
+      toast("RSVP confirmed. Ticket issued.");
+    }
+
+    function releaseVenue(code) {
+      const ticket = state.tickets.find(t => t.code === code);
+      if (!ticket) return;
+
+      ticket.venueReleased = true;
+      const event = getEventById(ticket.eventId);
+      if (event) event.status = "venue_released";
+
+      saveState();
+      renderAll();
+      navigate("tickets");
+      toast("Venue released.");
     }
 
     function generateTicketCode() {
@@ -1875,7 +2025,7 @@
       state.session.roleOverride = null;
       saveState();
       renderAll();
-      navigate(user.role === "admin" ? "admin" : "profile");
+      navigate(user.role === "admin" ? "admin" : "home");
       toast(`Signed in as ${user.role === "admin" ? "admin" : "member"}.`);
     }
 
@@ -1904,8 +2054,7 @@
         points: 120,
         streak: 1,
         tier: "Member",
-        role: "member",
-        notifications: true
+        role: "member"
       };
 
       state.members.push(newMember);
@@ -1913,7 +2062,7 @@
       state.session.roleOverride = null;
       saveState();
       renderAll();
-      navigate("profile");
+      navigate("home");
       toast("Demo account created.");
     }
 
@@ -1936,7 +2085,7 @@
       state.session.roleOverride = role;
       saveState();
       renderAll();
-      navigate(role === "admin" ? "admin" : "profile");
+      navigate(role === "admin" ? "admin" : "home");
       toast(role === "admin" ? "Admin view enabled." : "Member view enabled.");
     }
 
@@ -1950,7 +2099,7 @@
       }
 
       const member = state.members.find(m => m.id === ticket.memberId);
-      const event = state.events.find(e => e.id === ticket.eventId);
+      const event = getEventById(ticket.eventId);
 
       if (ticket.checkedIn) {
         wrap.innerHTML = `<div class="notice warning">Already checked in: ${escapeHtml(member?.name || "Unknown")} for ${escapeHtml(event?.title || "Unknown event")}.</div>`;
@@ -1985,7 +2134,7 @@
       document.getElementById("announcementBody").value = "";
       saveState();
       renderAll();
-      navigate("announcements");
+      navigate("home");
       toast("Announcement published.");
     }
 
@@ -2074,6 +2223,7 @@
     setupSplash();
     registerSW();
     renderAll();
+    wireDynamicButtons();
   </script>
 </body>
 </html>
