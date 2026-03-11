@@ -6,27 +6,29 @@
   <title>The Meridian Society</title>
   <meta
     name="description"
-    content="The Meridian Society mobile member app demo — speaker announcements, schedules, RSVP, tickets, and member access."
+    content="The Meridian Society mobile member app demo — speaker announcements, event schedules, RSVP, tickets, and member access."
   />
-  <meta name="theme-color" content="#0b0d11" />
+  <meta name="theme-color" content="#0a0c10" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+
   <style>
     :root{
       --bg:#090b0f;
       --bg-soft:#0f1318;
+      --bg-soft-2:#121820;
       --panel:#11161d;
       --panel-2:#151b23;
       --line:rgba(255,255,255,.08);
       --line-soft:rgba(255,255,255,.05);
       --text:#f3f1eb;
-      --muted:#a2a6ad;
-      --muted-2:#7f858d;
+      --muted:#a4a8ae;
+      --muted-2:#7d838b;
       --gold:#d0b07a;
       --gold-soft:#efe2c5;
-      --accent:#d9be8f;
-      --success:#a8c3a7;
-      --danger:#d79a9a;
+      --gold-deep:#b69057;
+      --success:#a7c3a5;
+      --danger:#d99a9a;
       --shadow:0 24px 60px rgba(0,0,0,.34);
       --radius-xl:30px;
       --radius-lg:22px;
@@ -37,6 +39,8 @@
       --safe-bottom:env(safe-area-inset-bottom,0px);
       --font:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --serif: "Georgia", "Times New Roman", serif;
+      --tap: 48px;
+      --transition: 220ms ease;
     }
 
     *{box-sizing:border-box}
@@ -49,11 +53,26 @@
         linear-gradient(180deg,#08090c 0%,#0a0d11 45%,#090b0f 100%);
       color:var(--text);
       font-family:var(--font);
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+      overscroll-behavior-y: none;
     }
 
     body{
       display:flex;
       justify-content:center;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid rgba(208,176,122,.8);
+      outline-offset: 2px;
     }
 
     .shell{
@@ -67,15 +86,110 @@
       border-left:1px solid rgba(255,255,255,.04);
       border-right:1px solid rgba(255,255,255,.04);
       overflow:hidden;
+      isolation:isolate;
+    }
+
+    .bg-grid{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(255,255,255,.4), transparent 60%);
+      z-index:0;
+    }
+
+    .splash{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at top, rgba(208,176,122,.12), transparent 26%),
+        linear-gradient(180deg,#090b0f 0%, #0a0d11 100%);
+      transition: opacity 420ms ease, visibility 420ms ease;
+    }
+
+    .splash.hidden{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+
+    .splash-card{
+      width:min(88vw, 360px);
+      padding:30px 24px 24px;
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.012));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .splash-mark{
+      width:74px;
+      height:74px;
+      border-radius:50%;
+      margin:0 auto 16px;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at 30% 30%, #f6ecd8, #d0b07a 58%, #87653a 100%);
+      color:#121212;
+      font-weight:800;
+      font-size:1.55rem;
+      letter-spacing:.08em;
+      box-shadow:0 14px 30px rgba(208,176,122,.22);
+    }
+
+    .splash h1{
+      margin:0;
+      font-size:1.22rem;
+      font-weight:700;
+    }
+
+    .splash p{
+      margin:8px auto 16px;
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.5;
+      max-width:28ch;
+    }
+
+    .loader{
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .loader span{
+      display:block;
+      width:38%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, #f1dfbc, #c6a063);
+      animation: loaderMove 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loaderMove{
+      0%{transform:translateX(-110%)}
+      100%{transform:translateX(330%)}
     }
 
     .topbar{
       position:sticky;
       top:0;
       z-index:25;
-      padding:calc(16px + var(--safe-top)) 18px 14px;
+      padding:calc(14px + var(--safe-top)) 16px 12px;
       backdrop-filter:blur(18px);
-      background:linear-gradient(180deg, rgba(9,11,15,.95), rgba(9,11,15,.7));
+      background:linear-gradient(180deg, rgba(9,11,15,.96), rgba(9,11,15,.72));
       border-bottom:1px solid var(--line-soft);
     }
 
@@ -120,7 +234,7 @@
     .brand p{
       margin:3px 0 0;
       color:var(--muted);
-      font-size:.73rem;
+      font-size:.72rem;
       text-transform:uppercase;
       letter-spacing:.12em;
     }
@@ -133,10 +247,23 @@
       color:var(--gold-soft);
       font-size:.73rem;
       white-space:nowrap;
+      flex:0 0 auto;
     }
 
     main{
-      padding:14px 16px 110px;
+      position:relative;
+      z-index:1;
+      padding:14px 14px 112px;
+    }
+
+    .view{
+      opacity:1;
+      transform:translateY(0);
+      transition:opacity var(--transition), transform var(--transition);
+    }
+
+    .view.hidden{
+      display:none !important;
     }
 
     .hero{
@@ -144,11 +271,11 @@
       overflow:hidden;
       border-radius:var(--radius-xl);
       background:
-        linear-gradient(180deg, rgba(255,255,255,.02), transparent 18%),
+        linear-gradient(180deg, rgba(255,255,255,.025), transparent 18%),
         linear-gradient(145deg, #12161d 0%, #0d1117 100%);
       border:1px solid var(--line);
       box-shadow:var(--shadow);
-      padding:22px 20px 20px;
+      padding:22px 18px 18px;
       margin-bottom:14px;
     }
 
@@ -157,8 +284,8 @@
       position:absolute;
       inset:0;
       background:
-        radial-gradient(circle at 100% 0%, rgba(208,176,122,.18), transparent 26%),
-        linear-gradient(180deg, rgba(255,255,255,.02), transparent 38%);
+        radial-gradient(circle at 100% 0%, rgba(208,176,122,.16), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,.015), transparent 38%);
       pointer-events:none;
     }
 
@@ -173,9 +300,9 @@
 
     .hero h2{
       margin:0;
-      font-size:1.95rem;
-      line-height:1.02;
-      letter-spacing:-.03em;
+      font-size:clamp(1.8rem, 7vw, 2.2rem);
+      line-height:1;
+      letter-spacing:-.04em;
       max-width:10ch;
       font-family:var(--serif);
       font-weight:700;
@@ -185,27 +312,8 @@
       margin:12px 0 18px;
       color:var(--muted);
       font-size:.94rem;
-      line-height:1.5;
+      line-height:1.52;
       max-width:34ch;
-    }
-
-    .marquee{
-      margin:16px -20px 0;
-      padding:11px 20px;
-      border-top:1px solid var(--line-soft);
-      border-bottom:1px solid var(--line-soft);
-      color:#c3b392;
-      font-size:.72rem;
-      text-transform:uppercase;
-      letter-spacing:.14em;
-      white-space:nowrap;
-      overflow:hidden;
-      opacity:.95;
-    }
-
-    .marquee span{
-      display:inline-block;
-      padding-right:28px;
     }
 
     .actions,.inline-actions{
@@ -214,17 +322,72 @@
       flex-wrap:wrap;
     }
 
+    .hero-stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .hero-stat{
+      padding:12px 10px;
+      border-radius:16px;
+      background:rgba(255,255,255,.025);
+      border:1px solid rgba(255,255,255,.06);
+      min-height:78px;
+    }
+
+    .hero-stat strong{
+      display:block;
+      font-size:1.12rem;
+      font-family:var(--serif);
+      margin-bottom:4px;
+    }
+
+    .hero-stat span{
+      color:var(--muted);
+      font-size:.73rem;
+      line-height:1.35;
+    }
+
+    .marquee{
+      margin:16px -18px 0;
+      padding:10px 18px;
+      border-top:1px solid var(--line-soft);
+      border-bottom:1px solid var(--line-soft);
+      color:#c3b392;
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      white-space:nowrap;
+      overflow:hidden;
+      opacity:.95;
+    }
+
+    .marquee-track{
+      display:inline-block;
+      min-width:200%;
+      animation: marqueeScroll 22s linear infinite;
+    }
+
+    @keyframes marqueeScroll{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
+
     button,.button{
       appearance:none;
       border:0;
       cursor:pointer;
-      font:inherit;
       text-decoration:none;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
-      transition:transform .15s ease, opacity .15s ease, border-color .15s ease;
+      min-height:var(--tap);
+      transition:transform .15s ease, opacity .15s ease, border-color .15s ease, background .15s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     button:active,.button:active{transform:scale(.985)}
@@ -232,14 +395,14 @@
     .btn-primary{
       background:linear-gradient(180deg,#e0c899,#c8a468);
       color:#15120c;
-      padding:12px 15px;
+      padding:12px 16px;
       border-radius:14px;
       font-weight:700;
       box-shadow:0 12px 24px rgba(208,176,122,.18);
     }
 
     .btn-secondary{
-      padding:12px 15px;
+      padding:12px 16px;
       border-radius:14px;
       background:rgba(255,255,255,.03);
       color:var(--text);
@@ -247,11 +410,12 @@
     }
 
     .section{margin-top:14px}
+
     .section-head{
       display:flex;
       justify-content:space-between;
       align-items:end;
-      gap:12px;
+      gap:10px;
       margin-bottom:10px;
     }
 
@@ -264,14 +428,15 @@
 
     .section-head span{
       color:var(--muted);
-      font-size:.8rem;
+      font-size:.79rem;
+      text-align:right;
     }
 
     .grid{display:grid; gap:12px}
     .list{display:grid; gap:12px}
 
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.015), rgba(255,255,255,.008));
+      background:linear-gradient(180deg, rgba(255,255,255,.016), rgba(255,255,255,.008));
       border:1px solid var(--line);
       border-radius:var(--radius-lg);
       padding:15px;
@@ -286,10 +451,13 @@
       padding:14px;
     }
 
-    .stats{grid-template-columns:repeat(3,1fr)}
+    .stats{
+      grid-template-columns:repeat(3,1fr);
+    }
+
     .stat strong{
       display:block;
-      font-size:1.3rem;
+      font-size:1.24rem;
       margin-bottom:3px;
       font-family:var(--serif);
     }
@@ -297,12 +465,12 @@
     .stat span{
       color:var(--muted);
       font-size:.76rem;
-      line-height:1.25;
+      line-height:1.28;
     }
 
     .kicker{
       color:var(--gold-soft);
-      font-size:.68rem;
+      font-size:.67rem;
       letter-spacing:.16em;
       text-transform:uppercase;
       margin-bottom:8px;
@@ -319,7 +487,7 @@
       margin:5px 0 0;
       font-size:.88rem;
       color:var(--muted);
-      line-height:1.4;
+      line-height:1.42;
     }
 
     .body{
@@ -362,6 +530,7 @@
       border:1px solid rgba(208,176,122,.22);
       font-size:.72rem;
       white-space:nowrap;
+      flex:0 0 auto;
     }
 
     .tiny{
@@ -395,6 +564,7 @@
       color:#fff;
       font-size:.78rem;
       font-weight:700;
+      flex:0 0 auto;
     }
 
     .profile-header{
@@ -441,13 +611,13 @@
 
     .input,.select,textarea{
       width:100%;
+      min-height:var(--tap);
       border-radius:14px;
       border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.03);
       color:var(--text);
       padding:13px 14px;
       outline:none;
-      font:inherit;
     }
 
     textarea{
@@ -554,15 +724,23 @@
       gap:10px;
       flex-wrap:wrap;
       margin-bottom:12px;
+      overflow:auto;
+      padding-bottom:2px;
+      scrollbar-width:none;
     }
 
+    .toolbar::-webkit-scrollbar{display:none}
+
     .pill-btn{
-      padding:9px 12px;
+      padding:10px 12px;
       border-radius:999px;
       background:rgba(255,255,255,.025);
       border:1px solid rgba(255,255,255,.07);
       color:var(--text);
       font-size:.81rem;
+      min-height:42px;
+      white-space:nowrap;
+      flex:0 0 auto;
     }
 
     .pill-btn.active{
@@ -570,8 +748,6 @@
       background:rgba(208,176,122,.1);
       border-color:rgba(208,176,122,.22);
     }
-
-    .hidden{display:none !important}
 
     .nav{
       position:fixed;
@@ -581,7 +757,7 @@
       width:100%;
       max-width:var(--phone);
       padding:10px 12px calc(10px + var(--safe-bottom));
-      background:linear-gradient(180deg, rgba(9,11,15,0), rgba(9,11,15,.94) 36%);
+      background:linear-gradient(180deg, rgba(9,11,15,0), rgba(9,11,15,.95) 36%);
       z-index:40;
     }
 
@@ -606,7 +782,7 @@
       place-items:center;
       gap:5px;
       padding:6px;
-      font-size:.69rem;
+      font-size:.68rem;
       border:1px solid transparent;
     }
 
@@ -635,7 +811,36 @@
       align-items:center;
     }
 
-    .center{text-align:center}
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:102px;
+      transform:translateX(-50%);
+      width:calc(100% - 28px);
+      max-width:420px;
+      z-index:999;
+      padding:12px 14px;
+      border-radius:16px;
+      box-shadow:0 12px 30px rgba(0,0,0,.28);
+      animation: toastIn .2s ease;
+    }
+
+    @keyframes toastIn{
+      from{opacity:0; transform:translateX(-50%) translateY(10px)}
+      to{opacity:1; transform:translateX(-50%) translateY(0)}
+    }
+
+    .hidden{display:none !important}
+
+    @media (max-width:370px){
+      .top-row{align-items:flex-start}
+      .status{font-size:.68rem; padding:7px 10px}
+      .hero-stat strong{font-size:1rem}
+      .row-2{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr 1fr 1fr}
+      .ticket-head,.top{flex-direction:column}
+      .tag{align-self:flex-start}
+    }
 
     @media (min-width:560px){
       body{padding:10px 0}
@@ -647,10 +852,31 @@
       }
       .nav{bottom:10px}
     }
+
+    @media (prefers-reduced-motion: reduce){
+      *,
+      *::before,
+      *::after{
+        animation:none !important;
+        transition:none !important;
+        scroll-behavior:auto !important;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="splash" id="splash">
+    <div class="splash-card">
+      <div class="splash-mark">M</div>
+      <h1>The Meridian Society</h1>
+      <p>Preparing the member registry, schedules, and speaker forum experience.</p>
+      <div class="loader"><span></span></div>
+    </div>
+  </div>
+
   <div class="shell">
+    <div class="bg-grid"></div>
+
     <header class="topbar">
       <div class="top-row">
         <div class="brand">
@@ -673,10 +899,12 @@
             A student-run speaker forum designed around the right room, the right people,
             and the right conversations.
           </p>
+
           <div class="actions">
             <button class="btn-primary" id="heroEvents">Explore Events</button>
             <button class="btn-secondary" id="heroMembership">Member Access</button>
           </div>
+
           <div class="install-banner hidden" id="installBanner">
             <div>
               <strong style="display:block; margin-bottom:4px;">Install Meridian</strong>
@@ -684,8 +912,27 @@
             </div>
             <button class="btn-primary" id="installBtn">Install</button>
           </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong id="heroEventCount">0</strong>
+              <span>Upcoming gatherings</span>
+            </div>
+            <div class="hero-stat">
+              <strong id="heroSpeakerCount">0</strong>
+              <span>Featured speakers</span>
+            </div>
+            <div class="hero-stat">
+              <strong id="heroMemberCount">0</strong>
+              <span>Active members</span>
+            </div>
+          </div>
+
           <div class="marquee">
-            <span>Ottawa, Canada ◈ Est. 2025 ◈ Student Run ◈ Speaker Forum ◈ Law & Policy ◈ Business & Media ◈ Member Registration Open ◈</span>
+            <div class="marquee-track">
+              Ottawa, Canada ◈ Est. 2025 ◈ Student Run ◈ Speaker Forum ◈ Law & Policy ◈ Business & Media ◈ Member Registration Open ◈ For Students, By Students ◈
+              Ottawa, Canada ◈ Est. 2025 ◈ Student Run ◈ Speaker Forum ◈ Law & Policy ◈ Business & Media ◈ Member Registration Open ◈ For Students, By Students ◈
+            </div>
           </div>
         </div>
 
@@ -767,8 +1014,8 @@
           </div>
           <div class="divider"></div>
           <div class="form">
-            <input class="input" id="loginEmail" type="email" placeholder="Email" />
-            <input class="input" id="loginPassword" type="password" placeholder="Password" />
+            <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
+            <input class="input" id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
             <button class="btn-primary" id="loginBtn">Sign In</button>
             <button class="btn-secondary" id="registerBtn">Create Demo Account</button>
           </div>
@@ -946,33 +1193,33 @@
 
     <nav class="nav">
       <div class="nav-inner">
-        <button class="nav-btn active" data-view="home">
+        <button class="nav-btn active" data-view="home" aria-label="Home">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M3 10.8L12 3l9 7.8V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
           </svg>
           <span>Home</span>
         </button>
-        <button class="nav-btn" data-view="events">
+        <button class="nav-btn" data-view="events" aria-label="Events">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <rect x="3" y="5" width="18" height="16" rx="3"></rect>
             <path d="M16 3v4M8 3v4M3 10h18"></path>
           </svg>
           <span>Events</span>
         </button>
-        <button class="nav-btn" data-view="speakers">
+        <button class="nav-btn" data-view="speakers" aria-label="Speakers">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M15 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
             <path d="M4 20a8 8 0 0 1 16 0"></path>
           </svg>
           <span>Speakers</span>
         </button>
-        <button class="nav-btn" data-view="announcements">
+        <button class="nav-btn" data-view="announcements" aria-label="Announcements">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M4 17l16-6-16-6v5l10 1-10 1z"></path>
           </svg>
           <span>Updates</span>
         </button>
-        <button class="nav-btn" data-view="profile">
+        <button class="nav-btn" data-view="profile" aria-label="Profile">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 21a8 8 0 0 0-16 0"></path>
             <circle cx="12" cy="8" r="4"></circle>
@@ -1154,10 +1401,9 @@
       ]
     };
 
-    const STORAGE_KEY = "meridian-v2-demo";
-    const SESSION_KEY = "meridian-v2-session";
+    const STORAGE_KEY = "meridian-v3-demo";
+    const SESSION_KEY = "meridian-v3-session";
     const state = loadState();
-    let currentView = "home";
     let deferredPrompt = null;
 
     const views = [...document.querySelectorAll(".view")];
@@ -1208,14 +1454,6 @@
       }[m]));
     }
 
-    function navigate(view) {
-      currentView = view;
-      views.forEach(v => v.classList.toggle("hidden", v.id !== `view-${view}`));
-      navButtons.forEach(b => b.classList.toggle("active", b.dataset.view === view));
-      if (view === "admin") renderAdmin();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
     function sortByDateDesc(a, b) {
       return new Date(b.date) - new Date(a.date);
     }
@@ -1229,6 +1467,19 @@
         "Member Access";
     }
 
+    function navigate(view) {
+      views.forEach(v => v.classList.add("hidden"));
+      const target = document.getElementById(`view-${view}`);
+      target.classList.remove("hidden");
+      navButtons.forEach(b => b.classList.toggle("active", b.dataset.view === view));
+      if (view === "admin") renderAdmin();
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    }
+
+    function prefersReducedMotion() {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    }
+
     function renderAll() {
       setStatus();
       renderHome();
@@ -1240,9 +1491,13 @@
     }
 
     function renderHome() {
+      const memberCount = state.members.filter(m => m.role !== "admin").length;
       document.getElementById("statEvents").textContent = state.events.length;
       document.getElementById("statSpeakers").textContent = state.speakers.length;
-      document.getElementById("statMembers").textContent = state.members.filter(m => m.role !== "admin").length;
+      document.getElementById("statMembers").textContent = memberCount;
+      document.getElementById("heroEventCount").textContent = state.events.length;
+      document.getElementById("heroSpeakerCount").textContent = state.speakers.length;
+      document.getElementById("heroMemberCount").textContent = memberCount;
 
       const featured = state.events.find(e => e.featured) || state.events[0];
       document.getElementById("featuredEvent").innerHTML = renderEventCard(featured, true);
@@ -1268,7 +1523,9 @@
           btn.classList.add("active");
           const value = btn.dataset.filter;
           const items = value === "All" ? state.events : state.events.filter(e => e.category === value);
-          list.innerHTML = items.length ? items.map(e => renderEventCard(e, false)).join("") : `<div class="empty">No events in this category.</div>`;
+          list.innerHTML = items.length
+            ? items.map(e => renderEventCard(e, false)).join("")
+            : `<div class="empty">No events in this category.</div>`;
           wireEventButtons();
         });
       });
@@ -1300,15 +1557,16 @@
     function renderAnnouncements() {
       const wrap = document.getElementById("announcementsList");
       const role = getRole();
-      const items = [...state.announcements].sort(sortByDateDesc)
+      const items = [...state.announcements]
+        .sort(sortByDateDesc)
         .filter(a => a.audience === "Public" || role !== "public");
+
       wrap.innerHTML = items.map(renderAnnouncementCard).join("");
     }
 
     function renderProfile() {
       const user = getUser();
       const role = getRole();
-
       const guest = document.getElementById("profileGuest");
       const member = document.getElementById("profileMember");
 
@@ -1425,22 +1683,26 @@
             </div>
             <span class="tag">${event.attendees.length}/${event.capacity}</span>
           </div>
+
           <div class="meta">
             <span>${escapeHtml(event.date)}</span>
             <span>${escapeHtml(event.time)}</span>
             <span>${escapeHtml(event.category)}</span>
           </div>
+
           <p class="body">${escapeHtml(event.description)}</p>
           <div class="tiny">Speakers: ${escapeHtml(speakerNames.join(" · "))}</div>
+
           <div class="attendees">
             ${attendeeMembers.slice(0, 6).map(m => `<div class="avatar">${initials(m.name)}</div>`).join("")}
             ${attendeeMembers.length > 6 ? `<span class="tiny">+${attendeeMembers.length - 6} more</span>` : ""}
           </div>
+
           <div class="inline-actions" style="margin-top:14px;">
             ${
               member
                 ? already
-                  ? `<button class="btn-secondary" disabled>Ticket Issued</button>`
+                  ? `<button class="btn-secondary" disabled aria-disabled="true">Ticket Issued</button>`
                   : `<button class="btn-primary rsvp-btn" data-event-id="${escapeHtml(event.id)}">RSVP</button>`
                 : `<button class="btn-secondary login-btn">Login to RSVP</button>`
             }
@@ -1480,6 +1742,7 @@
             </div>
             <span class="tag">${ticket.checkedIn ? "Checked In" : "Valid"}</span>
           </div>
+
           <div class="divider" style="margin:0 0 12px;"></div>
           <div class="tiny">Ticket code</div>
           <div style="font-weight:700; letter-spacing:.08em; margin-top:4px;">${escapeHtml(ticket.code)}</div>
@@ -1502,9 +1765,11 @@
       document.querySelectorAll(".rsvp-btn").forEach(btn => {
         btn.addEventListener("click", () => rsvpToEvent(btn.dataset.eventId));
       });
+
       document.querySelectorAll(".login-btn").forEach(btn => {
         btn.addEventListener("click", () => navigate("profile"));
       });
+
       document.querySelectorAll(".open-speakers-btn").forEach(btn => {
         btn.addEventListener("click", () => navigate("speakers"));
       });
@@ -1516,15 +1781,6 @@
 
       const div = document.createElement("div");
       div.className = "toast";
-      div.style.position = "fixed";
-      div.style.left = "50%";
-      div.style.bottom = "100px";
-      div.style.transform = "translateX(-50%)";
-      div.style.width = "calc(100% - 28px)";
-      div.style.maxWidth = "420px";
-      div.style.zIndex = "999";
-      div.style.padding = "12px 14px";
-      div.style.borderRadius = "16px";
       div.style.border = kind === "error"
         ? "1px solid rgba(215,154,154,.22)"
         : "1px solid rgba(168,195,167,.22)";
@@ -1538,16 +1794,22 @@
 
     function rsvpToEvent(eventId) {
       const user = getUser();
-      if (!user) return navigate("profile");
+      if (!user) {
+        navigate("profile");
+        return;
+      }
 
       const event = state.events.find(e => e.id === eventId);
       if (!event) return;
 
       if (state.tickets.some(t => t.eventId === eventId && t.memberId === user.id)) {
-        return toast("You already hold a ticket for this event.");
+        toast("You already hold a ticket for this event.");
+        return;
       }
+
       if (event.attendees.length >= event.capacity) {
-        return toast("This event is currently at capacity.", "error");
+        toast("This event is currently at capacity.", "error");
+        return;
       }
 
       event.attendees.push(user.id);
@@ -1577,7 +1839,10 @@
       const password = document.getElementById("loginPassword").value.trim();
       const user = state.members.find(m => m.email.toLowerCase() === email && m.password === password);
 
-      if (!user) return toast("Incorrect demo credentials.", "error");
+      if (!user) {
+        toast("Incorrect demo credentials.", "error");
+        return;
+      }
 
       state.session.userId = user.id;
       state.session.roleOverride = null;
@@ -1591,8 +1856,15 @@
       const email = document.getElementById("loginEmail").value.trim().toLowerCase();
       const password = document.getElementById("loginPassword").value.trim();
 
-      if (!email || !password) return toast("Enter an email and password first.", "error");
-      if (state.members.some(m => m.email.toLowerCase() === email)) return toast("That demo email already exists.", "error");
+      if (!email || !password) {
+        toast("Enter an email and password first.", "error");
+        return;
+      }
+
+      if (state.members.some(m => m.email.toLowerCase() === email)) {
+        toast("That demo email already exists.", "error");
+        return;
+      }
 
       const newMember = {
         id: `m-${Date.now()}`,
@@ -1629,7 +1901,11 @@
 
     function switchRole(role) {
       const user = getUser();
-      if (!user) return toast("Sign in first.", "error");
+      if (!user) {
+        toast("Sign in first.", "error");
+        return;
+      }
+
       state.session.roleOverride = role;
       saveState();
       renderAll();
@@ -1665,7 +1941,10 @@
       const body = document.getElementById("announcementBody").value.trim();
       const audience = document.getElementById("announcementAudience").value;
 
-      if (!title || !body) return toast("Fill in both announcement fields.", "error");
+      if (!title || !body) {
+        toast("Fill in both announcement fields.", "error");
+        return;
+      }
 
       state.announcements.unshift({
         id: `ann-${Date.now()}`,
@@ -1688,11 +1967,14 @@
       if ("Notification" in window) {
         const title = "Meridian Notice";
         const body = "A new gathering has been announced. Your app is up to date.";
+
         if (Notification.permission === "granted") {
           new Notification(title, { body, icon: "./icon.svg" });
         } else if (Notification.permission !== "denied") {
           Notification.requestPermission().then(p => {
-            if (p === "granted") new Notification(title, { body, icon: "./icon.svg" });
+            if (p === "granted") {
+              new Notification(title, { body, icon: "./icon.svg" });
+            }
           });
         }
       }
@@ -1720,8 +2002,17 @@
       }
     }
 
+    function setupSplash() {
+      const splash = document.getElementById("splash");
+      window.addEventListener("load", () => {
+        setTimeout(() => splash.classList.add("hidden"), 650);
+      });
+      setTimeout(() => splash.classList.add("hidden"), 1400);
+    }
+
     function bind() {
       navButtons.forEach(btn => btn.addEventListener("click", () => navigate(btn.dataset.view)));
+
       document.getElementById("heroEvents").addEventListener("click", () => navigate("events"));
       document.getElementById("heroMembership").addEventListener("click", () => navigate("profile"));
 
@@ -1731,17 +2022,24 @@
       document.getElementById("switchToMemberBtn").addEventListener("click", () => switchRole("member"));
       document.getElementById("switchToAdminBtn").addEventListener("click", () => switchRole("admin"));
       document.getElementById("notifyBtn").addEventListener("click", demoNotification);
-      document.getElementById("validateTicketBtn").addEventListener("click", () => validateTicket(document.getElementById("ticketInput").value));
+      document.getElementById("validateTicketBtn").addEventListener("click", () => {
+        validateTicket(document.getElementById("ticketInput").value);
+      });
       document.getElementById("scanDemoBtn").addEventListener("click", () => {
         document.getElementById("ticketInput").value = "MRD-0247-OTTAWA";
         validateTicket("MRD-0247-OTTAWA");
       });
       document.getElementById("publishAnnouncementBtn").addEventListener("click", publishAnnouncement);
+
+      document.getElementById("loginPassword").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") login();
+      });
     }
 
     bind();
     setupInstallPrompt();
     registerSW();
+    setupSplash();
     renderAll();
   </script>
 </body>
