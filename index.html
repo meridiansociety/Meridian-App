@@ -6,7 +6,7 @@
   <title>The Meridian Society</title>
   <meta
     name="description"
-    content="The Meridian Society mobile member app demo — schedules, tickets, registry, speaker announcements, and admin tools."
+    content="The Meridian Society mobile member app demo — schedules, tickets, announcements, legacy, and admin tools."
   />
   <meta name="theme-color" content="#090b0f" />
   <link rel="manifest" href="./manifest.json" />
@@ -82,7 +82,7 @@
       position:absolute;
       inset:0;
       pointer-events:none;
-      opacity:.13;
+      opacity:.12;
       background-image:
         linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
@@ -268,18 +268,17 @@
       max-width:31ch;
     }
 
-    .actions,.inline-actions,.row-actions{
+    .actions,.row-actions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
     }
 
-    button,.button{
+    button{
       appearance:none;
       border:0;
       min-height:var(--tap);
       cursor:pointer;
-      text-decoration:none;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -290,7 +289,7 @@
       touch-action:manipulation;
     }
 
-    button:active,.button:active{transform:scale(.985)}
+    button:active{transform:scale(.985)}
 
     .btn-primary{
       background:linear-gradient(180deg,#e0c899,#c8a468);
@@ -412,12 +411,37 @@
       text-align:right;
     }
 
+    .dashboard-grid,
     .overview{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
       gap:0;
       border-top:1px solid var(--line-soft);
       border-bottom:1px solid var(--line-soft);
+    }
+
+    .dashboard-item{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid var(--line-soft);
+    }
+
+    .dashboard-item:last-child{border-bottom:0}
+
+    .dashboard-item strong{
+      font-size:.9rem;
+      font-weight:700;
+    }
+
+    .dashboard-item span{
+      color:var(--muted);
+      font-size:.76rem;
+    }
+
+    .overview{
+      grid-template-columns:repeat(3,1fr);
     }
 
     .overview-item{
@@ -443,14 +467,13 @@
     }
 
     .list{display:grid;gap:0}
+
     .panel{
       padding:14px 0;
       border-bottom:1px solid var(--line-soft);
     }
 
-    .panel:first-child{
-      border-top:1px solid var(--line-soft);
-    }
+    .panel:first-child{border-top:1px solid var(--line-soft)}
 
     .panel-top{
       display:flex;
@@ -488,31 +511,28 @@
       line-height:1.5;
     }
 
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-height:28px;
-      padding:0 10px;
-      border:1px solid rgba(208,176,122,.22);
-      color:var(--gold-soft);
-      background:rgba(208,176,122,.07);
-      white-space:nowrap;
-      font-size:.72rem;
-      flex:0 0 auto;
-    }
-
+    .tag,
     .status-tag{
       display:inline-flex;
       align-items:center;
       justify-content:center;
       min-height:28px;
       padding:0 10px;
+      white-space:nowrap;
+      font-size:.72rem;
+      flex:0 0 auto;
+    }
+
+    .tag{
+      border:1px solid rgba(208,176,122,.22);
+      color:var(--gold-soft);
+      background:rgba(208,176,122,.07);
+    }
+
+    .status-tag{
       border:1px solid var(--line);
       color:var(--text);
       background:rgba(255,255,255,.02);
-      font-size:.72rem;
-      white-space:nowrap;
     }
 
     .meta-row{
@@ -592,41 +612,6 @@
       color:var(--gold-soft);
       border-color:rgba(208,176,122,.22);
       background:rgba(208,176,122,.07);
-    }
-
-    .dashboard{
-      display:grid;
-      gap:18px;
-    }
-
-    .dashboard-grid{
-      display:grid;
-      gap:0;
-      border-top:1px solid var(--line-soft);
-      border-bottom:1px solid var(--line-soft);
-    }
-
-    .dashboard-item{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      padding:12px 0;
-      border-bottom:1px solid var(--line-soft);
-    }
-
-    .dashboard-item:last-child{
-      border-bottom:0;
-    }
-
-    .dashboard-item strong{
-      font-size:.9rem;
-      font-weight:700;
-    }
-
-    .dashboard-item span{
-      color:var(--muted);
-      font-size:.76rem;
     }
 
     .registry{
@@ -903,7 +888,7 @@
     <div class="splash-inner">
       <div class="splash-mark">M</div>
       <h1>The Meridian Society</h1>
-      <p>Preparing the member registry, schedules, and speaker forum.</p>
+      <p>Preparing your schedule, access states, and current notices.</p>
       <div class="loader"><span></span></div>
     </div>
   </div>
@@ -929,11 +914,11 @@
         <div class="hero">
           <div class="eyebrow">For Students · By Students</div>
           <h2>Ambition needs company.</h2>
-          <p>A student-run speaker forum built around the right room, the right people, and the right conversations.</p>
+          <p>A student-run speaker forum built around access, exposure, and the right room. :contentReference[oaicite:1]{index=1}</p>
 
           <div class="actions">
             <button class="btn-primary" id="heroEvents">Explore Events</button>
-            <button class="btn-secondary" id="heroMembership">Member Access</button>
+            <button class="btn-secondary" id="heroAccess">Member Access</button>
           </div>
 
           <div class="install-banner hidden" id="installBanner">
@@ -947,11 +932,11 @@
           <div class="hero-status">
             <div class="hero-status-item">
               <strong id="heroNextEventLabel">Next Event</strong>
-              <span id="heroNextEventDate">April 4 · 7:00 PM</span>
+              <span id="heroNextEventDate">Awaiting schedule</span>
             </div>
             <div class="hero-status-item">
               <strong id="heroTicketState">No Ticket</strong>
-              <span>Your current access</span>
+              <span>Current access</span>
             </div>
             <div class="hero-status-item">
               <strong id="heroVenueState">Venue Pending</strong>
@@ -969,12 +954,10 @@
 
         <section class="section">
           <div class="section-head">
-            <h3>Member Dashboard</h3>
-            <span>Priority view</span>
+            <h3>Dashboard</h3>
+            <span>What matters now</span>
           </div>
-          <div class="dashboard">
-            <div class="dashboard-grid" id="memberDashboard"></div>
-          </div>
+          <div class="dashboard-grid" id="memberDashboard"></div>
         </section>
 
         <section class="section">
@@ -1006,17 +989,9 @@
       <section id="view-tickets" class="view hidden">
         <div class="section-head">
           <h3>Tickets</h3>
-          <span>Access state</span>
+          <span>Access states</span>
         </div>
         <div id="ticketsPageContent"></div>
-      </section>
-
-      <section id="view-registry" class="view hidden">
-        <div class="section-head">
-          <h3>Active Member Registry</h3>
-          <span>Members</span>
-        </div>
-        <div class="list" id="registryList"></div>
       </section>
 
       <section id="view-legacy" class="view hidden">
@@ -1027,17 +1002,25 @@
         <div class="list" id="legacyList"></div>
       </section>
 
-      <section id="view-profile" class="view hidden">
-        <div id="profileGuest">
+      <section id="view-more" class="view hidden">
+        <div class="section-head">
+          <h3>More</h3>
+          <span>Society context</span>
+        </div>
+        <div class="list" id="moreList"></div>
+      </section>
+
+      <section id="view-access" class="view hidden">
+        <div id="accessGuest">
           <section class="section">
             <div class="section-head">
               <h3>Member Access</h3>
-              <span>Registry login</span>
+              <span>Sign in</span>
             </div>
             <div class="panel">
               <div class="kicker">Membership</div>
-              <h4 class="title">Sign in</h4>
-              <p class="subtitle">RSVP, ticket access, registry, and member notices.</p>
+              <h4 class="title">Open member access</h4>
+              <p class="subtitle">Tickets, schedules, notices, and invitations live here. The site describes membership around speaker announcements, event schedules, gatherings, and connection to motivated peers. :contentReference[oaicite:2]{index=2}</p>
 
               <div class="form">
                 <input class="input" id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
@@ -1054,13 +1037,13 @@
           </section>
         </div>
 
-        <div id="profileMember" class="hidden">
+        <div id="accessMember" class="hidden">
           <section class="registry">
             <div class="registry-head">
               <div class="registry-id">
                 <div class="registry-badge" id="profileInitials">MS</div>
                 <div>
-                  <div class="kicker">Active Member Registry</div>
+                  <div class="kicker">Member Record</div>
                   <h3 id="profileName" class="title" style="font-size:1.1rem;">Member Name</h3>
                   <p id="profileMeta" class="subtitle">University · Interests</p>
                 </div>
@@ -1079,7 +1062,7 @@
               </div>
               <div class="registry-stat">
                 <strong id="profileStanding">Active</strong>
-                <span>Registry standing</span>
+                <span>Standing</span>
               </div>
             </div>
 
@@ -1113,7 +1096,7 @@
               <h3>Current Ticket</h3>
               <span>Live access</span>
             </div>
-            <div id="ticketsList"></div>
+            <div id="accessTicket"></div>
           </section>
         </div>
       </section>
@@ -1128,7 +1111,7 @@
             <div class="panel">
               <div class="kicker">Admin</div>
               <h4 class="title">Restricted access</h4>
-              <p class="subtitle">Only the admin demo role can validate tickets or publish notices.</p>
+              <p class="subtitle">Only the admin demo role can validate tickets, publish notices, and view the registry ledger.</p>
             </div>
           </section>
         </div>
@@ -1194,6 +1177,14 @@
 
           <section class="section">
             <div class="section-head">
+              <h3>Registry Ledger</h3>
+              <span>Admin only</span>
+            </div>
+            <div class="list" id="adminRegistryList"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
               <h3>Attendee Ledger</h3>
               <span>Capacity and attendance</span>
             </div>
@@ -1225,13 +1216,6 @@
           </svg>
           <span>Tickets</span>
         </button>
-        <button class="nav-btn" data-view="registry" aria-label="Registry">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M20 21a8 8 0 0 0-16 0"></path>
-            <circle cx="12" cy="8" r="4"></circle>
-          </svg>
-          <span>Registry</span>
-        </button>
         <button class="nav-btn" data-view="legacy" aria-label="Legacy">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M12 3v18"></path>
@@ -1239,9 +1223,18 @@
           </svg>
           <span>Legacy</span>
         </button>
-        <button class="nav-btn" data-view="profile" aria-label="Profile">
+        <button class="nav-btn" data-view="more" aria-label="More">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M4 17l16-6-16-6v5l10 1-10 1z"></path>
+            <circle cx="12" cy="12" r="1.3"></circle>
+            <circle cx="5" cy="12" r="1.3"></circle>
+            <circle cx="19" cy="12" r="1.3"></circle>
+          </svg>
+          <span>More</span>
+        </button>
+        <button class="nav-btn" data-view="access" aria-label="Access">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21a8 8 0 0 0-16 0"></path>
+            <circle cx="12" cy="8" r="4"></circle>
           </svg>
           <span>Access</span>
         </button>
@@ -1470,8 +1463,8 @@
       ]
     };
 
-    const STORAGE_KEY = "meridian-v5-demo";
-    const SESSION_KEY = "meridian-v5-session";
+    const STORAGE_KEY = "meridian-v6-demo";
+    const SESSION_KEY = "meridian-v6-session";
 
     const state = loadState();
     let deferredPrompt = null;
@@ -1578,9 +1571,9 @@
       renderHome();
       renderEvents();
       renderTicketsPage();
-      renderRegistry();
       renderLegacy();
-      renderProfile();
+      renderMore();
+      renderAccess();
       renderAdmin();
     }
 
@@ -1619,8 +1612,8 @@
         </div>
         <div class="dashboard-item">
           <div>
-            <strong>Registry access</strong>
-            <span>${user ? escapeHtml(user.name) : "Sign in for member access"}</span>
+            <strong>Standing</strong>
+            <span>${user ? "Member status active" : "Guest access only"}</span>
           </div>
           <span class="status-tag">${user ? "Active" : "Guest"}</span>
         </div>
@@ -1675,13 +1668,13 @@
           <div class="panel">
             <div class="kicker">Access</div>
             <h4 class="title">Sign in required</h4>
-            <p class="subtitle">Member tickets and venue release states appear here.</p>
+            <p class="subtitle">Member tickets and venue-release states appear here.</p>
             <div class="row-actions" style="margin-top:12px;">
-              <button class="btn-rsvp open-profile-btn">Open Member Access</button>
+              <button class="btn-rsvp open-access-btn">Open Member Access</button>
             </div>
           </div>
         `;
-        document.querySelectorAll(".open-profile-btn").forEach(btn => btn.addEventListener("click", () => navigate("profile")));
+        document.querySelectorAll(".open-access-btn").forEach(btn => btn.addEventListener("click", () => navigate("access")));
         return;
       }
 
@@ -1689,26 +1682,8 @@
       wrap.innerHTML = tickets.length
         ? tickets.map(renderTicketPanel).join("")
         : `<div class="empty">No tickets yet. RSVP to a gathering to generate one.</div>`;
-    }
 
-    function renderRegistry() {
-      const wrap = document.getElementById("registryList");
-      wrap.innerHTML = state.members
-        .filter(m => m.role !== "admin")
-        .map(m => `
-          <article class="panel">
-            <div class="panel-top">
-              <div style="display:flex; gap:12px; align-items:center;">
-                <div class="avatar">${initials(m.name)}</div>
-                <div>
-                  <h4 class="title">${escapeHtml(m.name)}</h4>
-                  <p class="subtitle">${escapeHtml(m.university)} · ${escapeHtml(m.interests.join(", "))}</p>
-                </div>
-              </div>
-              <span class="tag">${escapeHtml(m.tier)}</span>
-            </div>
-          </article>
-        `).join("");
+      wireDynamicButtons();
     }
 
     function renderLegacy() {
@@ -1728,11 +1703,37 @@
       `).join("");
     }
 
-    function renderProfile() {
+    function renderMore() {
+      const wrap = document.getElementById("moreList");
+      wrap.innerHTML = `
+        <article class="panel">
+          <div class="kicker">Who We Gather</div>
+          <h4 class="title">People worth being in a room with</h4>
+          <p class="body">Students, alumni, professionals, and people across many fields. The site defines Meridian around thoughtful speakers and curious young adults, with law, business, policy, media, and international work explicitly named. :contentReference[oaicite:3]{index=3}</p>
+        </article>
+        <article class="panel">
+          <div class="kicker">What We Are Not</div>
+          <h4 class="title">Honest about what we do not offer</h4>
+          <p class="body">Not a resume workshop, not a career placement office, not a political advocacy group, not a startup incubator, and not a closed elite circle. :contentReference[oaicite:4]{index=4}</p>
+        </article>
+        <article class="panel">
+          <div class="kicker">Speaking</div>
+          <h4 class="title">Share your experience</h4>
+          <p class="body">Meridian invites professionals, alumni, and thinkers to contribute through presentations, open conversations, and informal gatherings. :contentReference[oaicite:5]{index=5}</p>
+        </article>
+        <article class="panel">
+          <div class="kicker">Formats</div>
+          <h4 class="title">What the Society hosts</h4>
+          <p class="body">Formal Presentations, Open Conversations, Informal Gatherings, Career Pathway Talks, and Panel Discussions. :contentReference[oaicite:6]{index=6}</p>
+        </article>
+      `;
+    }
+
+    function renderAccess() {
       const user = getUser();
       const role = getRole();
-      const guest = document.getElementById("profileGuest");
-      const member = document.getElementById("profileMember");
+      const guest = document.getElementById("accessGuest");
+      const member = document.getElementById("accessMember");
 
       if (!user) {
         guest.classList.remove("hidden");
@@ -1757,10 +1758,11 @@
       document.getElementById("memberInterests").textContent = `Fields: ${user.interests.join(" · ")}`;
       document.getElementById("profileRoleTag").textContent = role === "admin" ? "Admin Session" : "Member Session";
       document.getElementById("memberBio").textContent = user.bio;
-
-      document.getElementById("ticketsList").innerHTML = tickets.length
+      document.getElementById("accessTicket").innerHTML = tickets.length
         ? tickets.map(renderTicketPanel).join("")
         : `<div class="empty">No tickets yet. RSVP to a gathering to generate one.</div>`;
+
+      wireDynamicButtons();
     }
 
     function renderAdmin() {
@@ -1780,6 +1782,23 @@
       document.getElementById("adminUpcomingCount").textContent = state.events.length;
       document.getElementById("adminRSVPCount").textContent = state.tickets.length;
       document.getElementById("adminAnnouncementCount").textContent = state.announcements.length;
+
+      document.getElementById("adminRegistryList").innerHTML = state.members
+        .filter(m => m.role !== "admin")
+        .map(m => `
+          <article class="panel">
+            <div class="panel-top">
+              <div style="display:flex; gap:12px; align-items:center;">
+                <div class="avatar">${initials(m.name)}</div>
+                <div>
+                  <h4 class="title">${escapeHtml(m.name)}</h4>
+                  <p class="subtitle">${escapeHtml(m.university)} · ${escapeHtml(m.interests.join(", "))}</p>
+                </div>
+              </div>
+              <span class="tag">${escapeHtml(m.tier)}</span>
+            </div>
+          </article>
+        `).join("");
 
       document.getElementById("adminEventsList").innerHTML = state.events.map(e => {
         const attendeeMembers = e.attendees
@@ -1852,7 +1871,7 @@
                 ? already
                   ? `<button class="btn-inline" disabled aria-disabled="true">Ticket Issued</button>`
                   : `<button class="btn-rsvp rsvp-btn" data-event-id="${escapeHtml(event.id)}">RSVP</button>`
-                : `<button class="btn-inline open-profile-btn">Login to RSVP</button>`
+                : `<button class="btn-inline open-access-btn">Login to RSVP</button>`
             }
             <button class="btn-inline open-legacy-btn">Legacy</button>
           </div>
@@ -1922,8 +1941,8 @@
         btn.addEventListener("click", () => rsvpToEvent(btn.dataset.eventId));
       });
 
-      document.querySelectorAll(".open-profile-btn").forEach(btn => {
-        btn.addEventListener("click", () => navigate("profile"));
+      document.querySelectorAll(".open-access-btn").forEach(btn => {
+        btn.addEventListener("click", () => navigate("access"));
       });
 
       document.querySelectorAll(".open-legacy-btn").forEach(btn => {
@@ -1955,7 +1974,7 @@
     function rsvpToEvent(eventId) {
       const user = getUser();
       if (!user) {
-        navigate("profile");
+        navigate("access");
         return;
       }
 
@@ -1983,7 +2002,7 @@
         venueReleased: false
       });
 
-      user.points += 90;
+      user.points += 70;
       user.streak = Math.min(user.streak + 1, 9);
 
       saveState();
@@ -2193,7 +2212,7 @@
       });
 
       document.getElementById("heroEvents").addEventListener("click", () => navigate("events"));
-      document.getElementById("heroMembership").addEventListener("click", () => navigate("profile"));
+      document.getElementById("heroAccess").addEventListener("click", () => navigate("access"));
 
       document.getElementById("loginBtn").addEventListener("click", login);
       document.getElementById("registerBtn").addEventListener("click", registerDemoAccount);
